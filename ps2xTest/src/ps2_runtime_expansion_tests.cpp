@@ -1513,5 +1513,18 @@ void register_ps2_runtime_expansion_tests()
             std::memcpy(&directCmd, rdram.data() + kBaseAddr + 12u, sizeof(directCmd));
             t.Equals(directCmd, 0x50000001u, "sceVif1PkCloseDirectCode should store a 1-QW DIRECT length");
         });
+
+        tc.Run("PS2_PROT3W rotates the lower three words and keeps the upper word", [](TestCase &t)
+        {
+            // _mm_set_epi32 lists words 3..0
+            const __m128i src = _mm_set_epi32(0x44444444, 0x33333333, 0x22222222, 0x11111111);
+            alignas(16) uint32_t out[4];
+            _mm_store_si128(reinterpret_cast<__m128i *>(out), PS2_PROT3W(src));
+
+            t.Equals(out[0], 0x22222222u, "word 0 should take word 1");
+            t.Equals(out[1], 0x33333333u, "word 1 should take word 2");
+            t.Equals(out[2], 0x11111111u, "word 2 should take word 0");
+            t.Equals(out[3], 0x44444444u, "word 3 should be unchanged");
+        });
     });
 }

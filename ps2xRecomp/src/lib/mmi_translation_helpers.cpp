@@ -520,8 +520,8 @@ namespace ps2recomp
 
     std::string CodeGenerator::translatePROT3W(const Instruction &inst)
     {
-        // Rotates words left by 3: [d,c,b,a] -> [a,d,c,b]
-        return fmt::format("SET_GPR_VEC(ctx, {}, _mm_shuffle_epi32(GPR_VEC(ctx, {}), _MM_SHUFFLE(0,3,2,1)));",
+        // Rotates the lower three words and keeps the upper one: [d,c,b,a] -> [d,a,c,b]
+        return fmt::format("SET_GPR_VEC(ctx, {}, _mm_shuffle_epi32(GPR_VEC(ctx, {}), _MM_SHUFFLE(3,0,2,1)));",
                            inst.rd, inst.rt);
     }
 

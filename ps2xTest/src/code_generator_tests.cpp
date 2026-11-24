@@ -1227,6 +1227,23 @@ void register_code_generator_tests()
                      "PCPYLD should use PS2_PCPYLD helper");
         });
 
+        tc.Run("PROT3W rotates the lower three words and keeps the upper word", [](TestCase &t) {
+            CodeGenerator gen({}, {});
+
+            Instruction inst{};
+            inst.isMMI = true;
+            inst.opcode = OPCODE_MMI;
+            inst.function = MMI_MMI2;
+            inst.sa = MMI2_PROT3W;
+            inst.rd = 3;
+            inst.rt = 5;
+
+            const std::string out = gen.translateInstruction(inst);
+            // rd.w0 = rt.w1, rd.w1 = rt.w2, rd.w2 = rt.w0, rd.w3 = rt.w3
+            t.IsTrue(out.find("_MM_SHUFFLE(3,0,2,1)") != std::string::npos,
+                     "PROT3W should keep word 3 in place but got: " + out);
+        });
+
         tc.Run("Unary MMI permutations read their source from rt", [](TestCase &t) {
             CodeGenerator gen({}, {});
 
